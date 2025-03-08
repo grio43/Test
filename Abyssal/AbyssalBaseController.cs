@@ -327,19 +327,33 @@ namespace EVESharpCore.Controllers.Abyssal
             if (droneBay == null)
                 return 0;
 
+            Log($"[DRONE-COUNT-DEBUG] GetAmountOfTypeIdLeftInDroneBay: baseTypeId={baseTypeId}, userIsMutated={userIsMutated}"); // ADDED LOGGING
+
             return droneBay.Items.Where(d =>
             {
+                Log($"[DRONE-COUNT-DEBUG] -- Item Check -- TypeName={d.TypeName}, TypeId={d.TypeId}, IsDynamicItem={d.IsDynamicItem}, OrignalDynamicItem.TypeId={(d.IsDynamicItem ? d.OrignalDynamicItem.TypeId.ToString() : "N/A")}"); // ADDED LOGGING
+
                 // user says mutated => must be dynamic
                 if (userIsMutated && !d.IsDynamicItem)
+                {
+                    Log($"[DRONE-COUNT-DEBUG] ---- Filtered out: UserMutated=True, ItemDynamic=False"); // ADDED LOGGING
                     return false;
+                }
+
 
                 // user says normal => must be not dynamic
                 if (!userIsMutated && d.IsDynamicItem)
+                {
+                    Log($"[DRONE-COUNT-DEBUG] ---- Filtered out: UserMutated=False, ItemDynamic=True"); // ADDED LOGGING
                     return false;
+                }
+
 
                 // Now check original or normal ID
                 int actualTypeId = d.IsDynamicItem ? d.OrignalDynamicItem.TypeId : d.TypeId;
-                return (actualTypeId == baseTypeId);
+                bool typeMatch = (actualTypeId == baseTypeId);
+                Log($"[DRONE-COUNT-DEBUG] ---- Type Match: ActualTypeId={actualTypeId}, BaseTypeId={baseTypeId}, Match={typeMatch}"); // ADDED LOGGING
+                return typeMatch;
             })
             .Sum(d => d.Stacksize);
         }

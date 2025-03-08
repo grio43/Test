@@ -685,20 +685,25 @@ namespace EVESharpCore.Controllers.Abyssal
                         var amount = t.Item2;
                         var mutated = t.Item4;
 
+                        Log($"[ARM-DEBUG] Processing DroneBayItem: TypeId={typeId}, Amount={amount}, Mutated={mutated}, TypeName={DirectEve.GetInvType(typeId)?.TypeName}"); // ADDED LOGGING
+
                         int missingInDroneBay = 0;
                         int availInHangar = 0;
 
                         if (!mutated)
                         {
+                            Log($"[ARM-DEBUG]  -- Non-Mutated Drone Logic --"); // ADDED LOGGING
                             missingInDroneBay = amount - droneBay.Items.Where(d => !d.IsDynamicItem && d.TypeId == typeId).Sum(d => d.Stacksize);
                             availInHangar = hangar.Items.Where(d => !d.IsDynamicItem && d.TypeId == typeId).Sum(d => d.Stacksize);
                         }
                         else
                         {
+                            Log($"[ARM-DEBUG]  -- Mutated Drone Logic --"); // ADDED LOGGING
                             missingInDroneBay = amount - droneBay.Items.Where(d => d.IsDynamicItem && d.OrignalDynamicItem.TypeId == typeId).Sum(d => d.Stacksize);
                             availInHangar = hangar.Items.Where(d => d.IsDynamicItem && d.OrignalDynamicItem.TypeId == typeId).Sum(d => d.Stacksize);
                         }
 
+                        Log($"[ARM-DEBUG]  -- Counts -- MissingInDroneBay={missingInDroneBay}, AvailInHangar={availInHangar}"); // ADDED LOGGING
 
                         //Log($"TypeId [{typeId}] AvaiableInHangar [{avaiableInHangar}] missingInDroneBay [{missingInDroneBay}]");
 
