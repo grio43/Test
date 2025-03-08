@@ -301,17 +301,19 @@ namespace EVESharpCore.Controllers.Abyssal
             int count = itemHangar.Items
                 .Where(i =>
                 {
-                    Log($"[HANGAR-COUNT-DEBUG] -- Item Check -- TypeName={i.TypeName}, TypeId={i.TypeId}, IsDynamicItem={i.IsDynamicItem}, OrignalDynamicItem.TypeId={(i.IsDynamicItem ? i.OrignalDynamicItem.TypeId.ToString() : "N/A")}");
-
-                    if (i.TypeId == typeId)
+                    // ...
+                    if (isMutated && i.IsDynamicItem)
                     {
-                        Log($"[HANGAR-COUNT-DEBUG] ---- TypeId Match!");
-                    }
+                        // If the “real” original type is zero, fall back to i.TypeId
+                        bool mutatedMatches =
+                            (i.OrignalDynamicItem.TypeId == typeId) ||
+                            (i.OrignalDynamicItem.TypeId == 0 && i.TypeId == typeId);
 
-                    if (isMutated && i.IsDynamicItem && i.OrignalDynamicItem.TypeId == typeId)
-                    {
-                        Log($"[HANGAR-COUNT-DEBUG] ---- Mutated Drone Match!");
-                        return true;
+                        if (mutatedMatches)
+                        {
+                            Log($"[HANGAR-COUNT-DEBUG] ---- Mutated Drone Match!");
+                            return true;
+                        }
                     }
                     if (!isMutated && i.TypeId == typeId)
                     {
