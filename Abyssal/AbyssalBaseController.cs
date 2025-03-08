@@ -321,13 +321,27 @@ namespace EVESharpCore.Controllers.Abyssal
         /// </summary>
         /// <param name="typeId"></param>
         /// <returns></returns>
-        internal int GetAmountOfTypeIdLeftInDroneBay(int typeId, bool isMutated = false)
+        internal int GetAmountOfTypeIdLeftInDroneBay(int baseTypeId, bool userIsMutated = false)
         {
-            if (!Framework.ActiveShip.HasDroneBay)
+            var droneBay = ESCache.Instance.DirectEve.GetShipsDroneBay();
+            if (droneBay == null)
                 return 0;
 
-            var droneBay = ESCache.Instance.DirectEve.GetShipsDroneBay();
-            return droneBay.Items.Where(i => (i.TypeId == typeId && !isMutated) || (isMutated && i.IsDynamicItem && i.OrignalDynamicItem.TypeId == typeId)).Sum(e => e.Stacksize);
+            return droneBay.Items.Where(d =>
+            {
+                // user says mutated => must be dynamic
+                if (userIsMutated && !d.IsDynamicItem)
+                    return false;
+
+                // user says normal => must be not dynamic
+                if (!userIsMutated && d.IsDynamicItem)
+                    return false;
+
+                // Now check original or normal ID
+                int actualTypeId = d.IsDynamicItem ? d.OrignalDynamicItem.TypeId : d.TypeId;
+                return (actualTypeId == baseTypeId);
+            })
+            .Sum(d => d.Stacksize);
         }
 
         public void LogNextGateState()
