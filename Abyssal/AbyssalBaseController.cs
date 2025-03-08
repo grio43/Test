@@ -287,13 +287,43 @@ namespace EVESharpCore.Controllers.Abyssal
         /// </summary>
         /// <param name="typeId"></param>
         /// <returns></returns>
-        internal int GetAmountofTypeIdLeftItemhangar(int typeId, bool isMutated = false)
+        internal int GetAmountOfTypeIdLeftItemhangar(int typeId, bool isMutated = false)
         {
             var itemHangar = ESCache.Instance.DirectEve.GetItemHangar();
-            return itemHangar.Items
-                .Where(i => (i.TypeId == typeId && !isMutated) ||
-                            (isMutated && i.IsDynamicItem && i.OrignalDynamicItem.TypeId == typeId))
+            if (itemHangar == null)
+            {
+                Log($"ItemHangar is null.");
+                return 0;
+            }
+
+            Log($"[HANGAR-COUNT-DEBUG]  baseTypeId={typeId}, isMutated={isMutated}"); // REMOVED FUNCTION NAME FROM LOG STRING
+
+            int count = itemHangar.Items
+                .Where(i =>
+                {
+                    Log($"[HANGAR-COUNT-DEBUG] -- Item Check -- TypeName={i.TypeName}, TypeId={i.TypeId}, IsDynamicItem={i.IsDynamicItem}, OrignalDynamicItem.TypeId={(i.IsDynamicItem ? i.OrignalDynamicItem.TypeId.ToString() : "N/A")}");
+
+                    if (i.TypeId == typeId)
+                    {
+                        Log($"[HANGAR-COUNT-DEBUG] ---- TypeId Match!");
+                    }
+
+                    if (isMutated && i.IsDynamicItem && i.OrignalDynamicItem.TypeId == typeId)
+                    {
+                        Log($"[HANGAR-COUNT-DEBUG] ---- Mutated Drone Match!");
+                        return true;
+                    }
+                    if (!isMutated && i.TypeId == typeId)
+                    {
+                        Log($"[HANGAR-COUNT-DEBUG] ---- Regular Drone Match!");
+                        return true;
+                    }
+                    return false;
+                })
                 .Sum(e => e.Stacksize);
+
+            Log($"[HANGAR-COUNT-DEBUG] GetAmountOfTypeIdLeftItemhangar: Returning count={count}");
+            return count;
         }
 
         /// <summary>
@@ -303,7 +333,7 @@ namespace EVESharpCore.Controllers.Abyssal
         /// <returns></returns>
         internal int GetAmountofTypeIdLeftItemhangarAndCargo(int typeId, bool isMutated = false)
         {
-            return GetAmountofTypeIdLeftInCargo(typeId, isMutated) + GetAmountofTypeIdLeftItemhangar(typeId, isMutated);
+            return GetAmountofTypeIdLeftInCargo(typeId, isMutated) + GetAmountOfTypeIdLeftItemhangar(typeId, isMutated);
         }
 
         /// <summary>
@@ -313,7 +343,7 @@ namespace EVESharpCore.Controllers.Abyssal
         /// <returns></returns>
         internal int GetAmountofTypeIdLeftItemhangarAndDroneBay(int typeId, bool isMutated = false)
         {
-            return GetAmountOfTypeIdLeftInDroneBay(typeId, isMutated) + GetAmountofTypeIdLeftItemhangar(typeId, isMutated);
+            return GetAmountOfTypeIdLeftInDroneBay(typeId, isMutated) + GetAmountOfTypeIdLeftItemhangar(typeId, isMutated);
         }
 
         /// <summary>
