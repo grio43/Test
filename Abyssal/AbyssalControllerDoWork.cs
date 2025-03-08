@@ -726,6 +726,7 @@ namespace EVESharpCore.Controllers.Abyssal
 
                         var missingInShipsCargo = amount - shipsCargo.Items.Where(d => d.TypeId == typeId).Sum(d => d.Stacksize);
                         var avaiableInHangar = hangar.Items.Where(d => d.TypeId == typeId).Sum(d => d.Stacksize);
+                        var availInHangar = GetAmountOfTypeIdLeftItemhangarAndCargo(typeId, false);
 
 
                         //Log($"TypeId [{typeId}] AvaiableInHangar [{avaiableInHangar}] missingInShipsCargo [{missingInShipsCargo}]");
@@ -1625,6 +1626,11 @@ namespace EVESharpCore.Controllers.Abyssal
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        private object GetAmountOfTypeIdLeftItemhangarAndCargo(int typeId, bool v)
+        {
+            throw new NotImplementedException();
         }
     }
 }
